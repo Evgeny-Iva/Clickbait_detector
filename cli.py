@@ -10,13 +10,25 @@ def parse_args(args=None):
 
 def process_file(file_path):
     result = []
-    with open(file_path, 'r', encoding='utf-8') as f:
-        text = csv.reader(f)
-        next(text)
-        for row in text:
-            if float(row[1]) > 15 and float(row[2]) < 40:
-                result.append([row[0], float(row[1]), float(row[2])])
-    return result
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            text = csv.reader(f)
+            next(text)
+            for row in text:
+                if float(row[1]) > 15 and float(row[2]) < 40:
+                    result.append([row[0], float(row[1]), float(row[2])])
+        return result
+    except FileNotFoundError:
+        print(f"Ошибка: файл {file_path} не найден. Пропускаем.")
+        return result
+
+    except ValueError:
+        print(f"Ошибка: файл {file_path} содержит нечисловые значения в колонках CTR или retention. Пропускаем.")
+        return result
+
+    except Exception as e:
+        print(f"Ошибка при чтении {file_path}: {e}. Пропускаем.")
+        return result
 
 def print_table(data):
     sorted_data = sorted(data, key=lambda x: x[1], reverse=True)
@@ -38,10 +50,22 @@ def print_table(data):
         print(f"+{'-' * (width_title + 2)}+{'-' * (ctr_width + 3)}+{'-' * (retention_width + 2)}+")
 
 
+REPORTS = {
+    "clickbait": print_table,
+}
+
 if __name__ == '__main__':
     args = parse_args()
+    if args.report not in REPORTS:
+        print(f"Ошибка: отчёт '{args.report}' не поддерживается. Доступны: {', '.join(REPORTS.keys())}")
+        exit(1)
+
     all_videos = []
     for file_path in args.files:
         videos = process_file(file_path)
         all_videos.extend(videos)
-    print_table(all_videos)
+
+    if all_videos:
+        REPORTS[args.report](all_videos)
+    else:
+        print("Не найдено видео, удовлетворяющих условиям!")

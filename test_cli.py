@@ -1,5 +1,5 @@
 import pytest
-from cli import parse_args, process_file
+from cli import parse_args, process_file, print_table
 from io import StringIO
 
 def test_parse_args_default():
@@ -22,5 +22,23 @@ def test_process_file(monkeypatch):
     result = process_file("fake_path.csv")
 
     expected = [["Видео 1", 20.0, 30.0], ["Видео 3", 25.0, 35.0]]
-    print("RESULT:", result)
     assert result == expected
+
+def test_print_table(capsys):
+    data = [
+        ["Видео 1", 20.0, 30.0],
+        ["Видео 3", 25.0, 35.0],
+    ]
+
+    print_table(data)
+    captured = capsys.readouterr()
+    output = captured.out
+
+    assert "title" in output
+    assert "ctr" in output
+    assert "retention" in output
+
+    assert "Видео 1" in output
+    assert "Видео 3" in output
+    assert "20.0" in output
+    assert "25.0" in output
