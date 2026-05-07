@@ -5,7 +5,10 @@ CLI-утилита для поиска кликбейтных видео из CS
 ## Пример запуска
 
 python cli.py --files videos.csv
-python cli.py --files data1.csv data2.csv --report clickbait
+python cli.py --files data1.csv data2.csv --report clickbait!
+
+## Результат запуска
+![img_1.png](img_1.png)
 
 ## Установка и запуск тестов
 
